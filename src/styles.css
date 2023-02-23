@@ -2,3 +2,6 @@ img {
   width: 150px;
   margin-left: 550px;
 }
+.bold-text {
+  font-weight: bold;
+}

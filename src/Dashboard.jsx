@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./styles.css";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
@@ -9,21 +10,19 @@ import Avatar from "@material-ui/core/Avatar";
 import Typography from "@mui/material/Typography";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import CloseIcon from "@mui/icons-material/Close";
+import CssBaseline from '@mui/material/CssBaseline';
+
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-// import Divider from "@material-ui/core/Divider";
+import Divider from "@material-ui/core/Divider";
 import AddIcon from "@mui/icons-material/Add";
-import clsx from "clsx";
+// import clsx from "clsx";
 import logo from "./danalogo1.png";
-import Page1 from "./page1";
-import Page2 from "./page2";
-import Page3 from "./page3";
+
 import { Link } from "react-router-dom";
 
-import { Menu, MenuItem } from "@material-ui/core";
+import { Menu, MenuItem, Hidden } from "@material-ui/core";
 
 import {
   PeopleOutlined,
@@ -33,22 +32,42 @@ import {
   PersonOutlined
 } from "@material-ui/icons";
 
+import List from "@material-ui/core/List";
+// import ListItem from "@material-ui/core/ListItem";
+// import ListItemText from "@material-ui/core/ListItemText";
+import Collapse from "@material-ui/core/Collapse";
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { isTemplateExpression } from "typescript";
+
+
 const drawerWidth = 240;
 const menuId = "primary-search-account-menu";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex"
+    display: "flex",
+    overflow: "hidden"
+  },
+  
+  expandIcon: {
+    marginRight: '4rem', // decrease the margin as needed
+  },
+  expandLessIcon: {
+    marginRight: '4rem', // decrease the margin as needed
   },
   link: {
     textDecoration: "none",
     color: theme.palette.text.primary
   },
   appBar: {
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+    marginLeft: drawerWidth,
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(100% - ${drawerWidth}px)`
+      // transition: theme.transitions.create(["margin", "width"], {
+      //   easing: theme.transitions.easing.sharp,
+      //   duration: theme.transitions.duration.leavingScreen
+    }
   },
   avatar: {
     margin: theme.spacing(1),
@@ -72,10 +91,14 @@ const useStyles = makeStyles((theme) => ({
   },
   drawer: {
     width: drawerWidth,
-    flexShrink: 0
+    flexShrink: 0,
+    overflow: "hidden" 
   },
   drawerPaper: {
     width: drawerWidth
+  },
+  nested: {
+    paddingLeft: theme.spacing(4)
   },
   drawerHeader: {
     display: "flex",
@@ -99,20 +122,49 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen
     }),
     marginLeft: 0
+  },
+  spacer: {
+    flexGrow: 1
   }
 }));
 
 const data = [
   {
-    name: "Home",
+    text: "Home",
+    path: "/Home",
     icon: <HomeOutlined />
   },
-  { name: "Product", icon: <NoteAddOutlined />, path: "/page1" },
-  { name: "NCR", icon: <AddIcon />, path: "/page2" },
-  { name: "Observation", icon: <AddIcon />, path: "/page3" },
-  { name: "Task", icon: <WorkOutline /> },
-  { name: "Users", icon: <PeopleOutlined /> },
-  { name: "Profile", icon: <PersonOutlined /> }
+  {
+    text: "Product",
+    icon: <NoteAddOutlined />,
+    subMenu: [
+      {
+        text: "NCR",
+        path: "/NCR",
+        icon: <AddIcon />
+      },
+      {
+        text: "Observation",
+        path: "/Observation",
+        icon: <AddIcon />
+      }
+    ]
+  },
+  {
+    text: "Task",
+    path: "/Task",
+    icon: <WorkOutline />
+  },
+  {
+    text: "Users",
+    path: "/Users",
+    icon: <PeopleOutlined />
+  },
+  {
+    text: "Profile",
+    path: "/Profile",
+    icon: <PersonOutlined />
+  }
 ];
 
 function NavigationBar() {
@@ -122,28 +174,73 @@ function NavigationBar() {
   const [anchorEl, setAnchorEl] = useState(false);
   const isMenuOpen = Boolean(anchorEl);
 
-  const getList = () => {
-    return (
-      <div style={{ width: 250 }} onClick={() => setOpen(false)}>
-        {data.map((item, index) => (
-          <Link to={item.path} className={classes.link}>
-            <ListItem button key={index}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItem>
-          </Link>
-        ))}
-      </div>
-    );
-    // return (
-    //   <div>
-    //     <Button onClick={() => setOpen(true)}>Click me</Button>
-    //     <Drawer open={open} anchor={"left"} onClose={() => setOpen(false)}>
-    //       {getList()}
-    //     </Drawer>
-    //   </div>
-    // );
+  const [selectedItem, setSelectedItem] = useState();
+
+  const handleItemClick = (item) => {
+    setSelectedItem(isTemplateExpression);
+  }
+
+  const handleClick = () => {
+    setOpen(!open);
   };
+  
+  const getSubList = (subMenu) => {
+    return subMenu.map((item, index) => (
+      <Link to={item.path} className={classes.link}>
+      <ListItem
+        button
+        key={index}
+        className={classes.nested}
+
+      >
+        <ListItemIcon>{item.icon}</ListItemIcon> 
+        <ListItemText primary={item.text} />
+      </ListItem>
+      </Link>
+    ));
+  };
+
+
+
+  const getList = (data) => {
+    return (
+      <div
+        style={{ width: 300, marginTop: "100px" }}
+        // onClick={() => setOpen(false)}
+      >
+        {data.map((item, index) => {
+         if (item.subMenu) {
+          return (
+            <React.Fragment key={index}>
+              <ListItem button onClick={handleClick}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+                {open ?<ExpandLess className={classes.expandIcon}/> : <ExpandMore className={classes.expandLessIcon}/>}
+              </ListItem>
+              <Collapse in={open} timeout="auto" unmountOnExit>
+                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+                     component="nav"
+                    aria-labelledby="nested-list-subheader" disablePadding>
+                  {getSubList(item.subMenu)}
+                </List>
+              </Collapse>
+            </React.Fragment>
+          );
+          }else{
+            return (
+              <Link to={item.path} className={classes.link}>
+              <ListItem button key={index} component="a">
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItem>
+              </Link>
+            );
+          }
+        })}
+        </div>
+    )
+    };
+    
 
   const handleProfileClick = () => {
     // handle my profile click
@@ -168,101 +265,120 @@ function NavigationBar() {
   //   setOpen(true);
   // };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+  // const handleDrawerClose = () => {
+  //   setOpen(false);
+  // };
 
   return (
     <div className={classes.root}>
-      <Drawer open={open} anchor={"left"} onClose={() => setOpen(false)}>
-        <div className={classes.drawerHeader}>
+      <CssBaseline />
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        className={classes.drawer}
+        variant="permanent"
+        anchor="left"
+        // open={open}
+        classes={{
+          paper: classes.drawerPaper
+        }}
+      >
+        {/* <div className={classes.drawerHeader}>
           <IconButton onClick={handleDrawerClose}>
             <CloseIcon />
           </IconButton>
-        </div>
-        {getList()}
+        </div> */}
+        {/* <div className="{classes.toolbar}" /> */}
+        <List>{getList(data)}</List>
       </Drawer>
 
-      {/* <Divider /> */}
+      <Divider />
       <AppBar
         position="fixed"
+        className={classes.appBar}
         // className={clsx(classes.appBar, {
-        //   [classes.appBarShift]: open
+        //   [classes.appBarShift]: 1
         // })}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={() => setOpen(true)}
-            edge="start"
-            // className={clsx(classes.menuButton, open && classes.hide)}
-          >
-            <MenuIcon />
-          </IconButton>
-
           {/* Logo */}
           <img src={logo} alt="logo" />
 
           {/* NotificationIcon And profile Avatar */}
-          <IconButton
-            style={{ marginLeft: "400px" }}
-            aria-label="show new notifications"
-            color="inherit"
-          >
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="account of current user"
-            aria-controls={menuId}
-            aria-haspopup="true"
-            onClick={handleMenuOpen}
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right"
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right"
-            }}
-            open={isMenuOpen}
-            onClose={() => handleMenuClose(false)}
-          >
-            <MenuItem onClick={() => handleProfileClick()}>My Profile</MenuItem>
-            <MenuItem onClick={() => handleLogoutClick()}>Logout</MenuItem>
-          </Menu>
-
-          <div>
-            <Avatar
-              src="/profile.png"
-              style={{ marginLeft: "-67rem", marginTop: "2px" }}
-            />
-            <Typography
-              variant="h6"
-              sx={{
-                color: "text.white",
-                fontWeight: "600",
-                marginLeft: "-64rem",
-                marginTop: "-2.2rem"
-              }}
+          <Hidden xsDown>
+            <IconButton
+              style={{ marginLeft: "240px" }}
+              aria-label="show new notifications"
+              color="inherit"
             >
-              {localStorage.getItem("fname") +
-                " " +
-                localStorage.getItem("lname")}
-            </Typography>
-          </div>
+              <Badge badgeContent={4} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="account of current user"
+              aria-controls={menuId}
+              aria-haspopup="true"
+              onClick={handleMenuOpen}
+              color="inherit"
+            >
+              <AccountCircle />
+            </IconButton>
+
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              open={isMenuOpen}
+              onClose={() => handleMenuClose(false)}
+            >
+              <MenuItem onClick={() => handleProfileClick()}>
+                My Profile
+              </MenuItem>
+              <MenuItem onClick={() => handleLogoutClick()}>Logout</MenuItem>
+            </Menu>
+
+            <div className={classes.spacer}>
+              <Avatar
+                src="/profile.png"
+                style={{
+                  marginLeft: "-63rem",
+                  marginTop: "-20px",
+                  position: "fixed"
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "text.white",
+                  fontWeight: "600",
+                  marginLeft: "-60rem",
+                  marginTop: "-15px",
+                  position: "fixed"
+                }}
+              >
+                {localStorage.getItem("fname") +
+                  " " +
+                  localStorage.getItem("lname")}
+              </Typography>
+            </div>
+          </Hidden>
         </Toolbar>
       </AppBar>
     </div>
